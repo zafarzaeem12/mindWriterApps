@@ -173,8 +173,9 @@ const register = async (req, res) => {
         }
         else {
 
-            const verificationCode = Math.floor(100000 + Math.random() * 900000);
+            const verificationCode = Math.floor(Math.random() * 900000) + 100000;
             //const verificationCode = 123456
+            
 
             const findEmail = await User.find({ email: req.body.email });
             if (findEmail.length < 1) {
@@ -320,7 +321,7 @@ const resendCode = async (req, res) => {
             });
         }
         else {
-             const verificationCode = Math.floor(100000 + Math.random() * 900000);
+            const verificationCode = Math.floor(Math.random() * 900000) + 100000;
             // const verificationCode = 123456
             const findUser = await User.findOne({ _id: req.body.user_id });
             if (findUser) {
@@ -367,16 +368,11 @@ const forgotPassword = async (req, res) => {
                 message: "Email field is required",
             });
         }
-        //else if (!req.body.role) {
-        //     return res.status(400).send({
-        //         status: 0,
-        //         message: "User role is required"
-        //     })
-        // }
+
         else {
             const findUser = await User.findOne({ email: req.body.email });
             if (findUser) {
-                const verificationCode = Math.floor(100000 + Math.random() * 900000);
+                const verificationCode = Math.floor(Math.random() * 900000) + 100000;
                 // const verificationCode = 123456
                 const updateUser = await User.findOneAndUpdate({ _id: findUser._id }, { user_is_forgot: 1, verification_code: verificationCode }, { new: true })
                 if (updateUser) {
@@ -458,7 +454,7 @@ const resetPassword = async (req, res) => {
                     return res.status(200).send({
                         status: 1,
                         message: "Password updated successfully",
-                        // data: { user_id: user._id }
+                       
                     })
                 }
                 else {
