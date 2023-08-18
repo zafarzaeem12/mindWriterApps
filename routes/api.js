@@ -27,8 +27,8 @@ const {
     DeleteCategory
 } = require("../controllers/api/categoryController")
 const {
-    createLogs,
-    getAllLogs,
+    create_meeting_schedule,
+    get_all_logs,
     getSpecficLogs,
     UpdateLogs,
     DeleteLogs
@@ -38,8 +38,10 @@ const { getContent } = require("../controllers/api/commonController");
 //** Multer **//
 const { upload } = require("../middleware/utils");
 
-
-const { getInAppNotification, userNotifications } = require("../controllers/api/notificationController");
+const { 
+    getInAppNotification, 
+    userNotifications 
+} = require("../controllers/api/notificationController");
 
 
 /** Auth */
@@ -80,6 +82,13 @@ router.put("/updateCategory/:id" ,verifyToken ,UpdateCategory )
 router.post("/deleteCategory/:id" ,verifyToken ,DeleteCategory )
 
 /** Logs  */
+router.post("/createLogs" , upload.single('recording')  , verifyToken , create_meeting_schedule );
+router.get("/getallLogs" , verifyToken , get_all_logs );
+router.get("/getLogs/:id" , verifyToken , getSpecficLogs );
+router.put("/updateLogs/:id" , verifyToken , UpdateLogs );
+router.delete("/deleteLogs/:id" , verifyToken , DeleteLogs );
+
+
 
 
 module.exports = router;

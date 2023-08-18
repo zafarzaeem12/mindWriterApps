@@ -47,7 +47,6 @@ const logsSchema = new mongoose.Schema(
     },
     recording: {
       type: String,
-      default: "",
     },
   },
   { timestamps: true }

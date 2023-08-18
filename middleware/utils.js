@@ -68,13 +68,17 @@ const storage = multer.diskStorage({
         // console.log("photos")
         cb(null, "./uploads/extra_image/");
       }
+      else if (file.fieldname == "recording") {
+        // console.log("photos")
+        cb(null, "./uploads/Recording/");
+      }
     },
     filename: function (req, file, cb) {
       cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
     },
   });
   function fileFilter(req, file, cb) {
-    if (file.mimetype === "image/jpeg" || file.mimetype === "image/png" || file.mimetype === "image/jpg") {
+    if (file.mimetype === "image/jpeg" || file.mimetype === "image/png" || file.mimetype === "image/jpg" || file.mimetype === "video") {
       cb(null, true);
     } else {
       cb(null, false);
