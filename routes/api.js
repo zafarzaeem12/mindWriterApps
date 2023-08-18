@@ -19,6 +19,20 @@ const {
     userProfile,
     deleteUserProfile,
 } = require("../controllers/api/userController");
+const {
+    create_Category,
+    getCategory,
+    SpecficCategory,
+    UpdateCategory,
+    DeleteCategory
+} = require("../controllers/api/categoryController")
+const {
+    createLogs,
+    getAllLogs,
+    getSpecficLogs,
+    UpdateLogs,
+    DeleteLogs
+} = require("../controllers/api/logsController")
 const { getContent } = require("../controllers/api/commonController");
 
 //** Multer **//
@@ -55,6 +69,17 @@ router.get("/content/:type", getContent);
 /** Notification **/
 router.post("/notification", verifyToken, userNotifications);
 router.get('/app-notification', verifyToken, getInAppNotification);
+
+
+
+/** Category  */
+router.post("/createCategory" ,verifyToken ,create_Category )
+router.get("/createCategory" ,verifyToken ,create_Category )
+router.get("/createCategory" ,verifyToken ,create_Category )
+router.put("/createCategory" ,verifyToken ,create_Category )
+router.post("/createCategory" ,verifyToken ,create_Category )
+
+/** Logs  */
 
 
 module.exports = router;
