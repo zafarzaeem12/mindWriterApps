@@ -8,7 +8,7 @@ var mongoose = require("mongoose");
 const userProfile = async (req, res) => {
     try {
 
-        const user = await User.findOne({ _id: req.params.id })
+        const user = await User.findOne({ _id: req.user.id })
         // console.log(user)
         if (!user) {
             res.status(400).json({
@@ -60,7 +60,6 @@ const userProfile = async (req, res) => {
 
 /** update User Profile **/
 const updateProfile = async (req, res) => {
-  // console.log(req.files.user_image[0].path);
   try {
     if (!req.body.id) {
       res.status(400).send({
@@ -91,9 +90,9 @@ const updateProfile = async (req, res) => {
             { _id: req.body.id },
             {
               name: req.body.name,
-              user_image: req.file ? req.file.path : req.body.user_image,
+              user_image: req.file ? req.file.path.replace(/\\/g, "/") : req.body.user_image,
               phone_number: req.body.phone_number,
-              dob: req.body.dob ? moment(new Date(req.body.dob)).format("YYYY-MM-DD") : findUser?.dob,
+              description : req.body.description
             },
             { new: true }
           )

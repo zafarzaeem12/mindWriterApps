@@ -2,7 +2,7 @@ const { hash } = require("bcrypt");
 const bcrypt = require("bcrypt");
 const User = require("../../models/User");
 const moment = require("moment/moment");
-const { sendEmail } = require("../../config/mailer");
+const sendEmail  = require("../../config/mailer");
 // const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 /** Login user */
@@ -56,7 +56,7 @@ const login = async (req, res) => {
                             _id: findUserDetails?._id,
                             user_image: findUserDetails?.user_image,
                             phone_number: findUserDetails?.phone_number,
-                            dob: findUserDetails?.dob,
+                            description: findUserDetails?.description,
                             user_authentication: findUserDetails?.user_authentication,
                             is_verified: findUserDetails?.is_verified,
                             email: findUserDetails?.email,
@@ -98,7 +98,7 @@ const login = async (req, res) => {
                             _id: updateUser._id,
                             user_image: updateUser.user_image,
                             phone_number: updateUser.phone_number,
-                            dob: updateUser.dob,
+                            description: updateUser?.description,
                             user_authentication: updateUser.user_authentication,
                             email: updateUser?.email,
                             is_verified: updateUser.is_verified,
@@ -142,7 +142,7 @@ const register = async (req, res) => {
         if (!req.body.email) {
             res.status(400).send({
                 status: 0,
-                message: "Email is required",
+                message: "Email is requireds",
             });
         } else if (!req.body.password) {
             res.status(400).send({
@@ -173,8 +173,8 @@ const register = async (req, res) => {
         }
         else {
 
-            // const verificationCode = Math.floor(100000 + Math.random() * 900000);
-            const verificationCode = 123456
+            const verificationCode = Math.floor(100000 + Math.random() * 900000);
+            //const verificationCode = 123456
 
             const findEmail = await User.find({ email: req.body.email });
             if (findEmail.length < 1) {
@@ -191,12 +191,16 @@ const register = async (req, res) => {
                 });
                 await user.save();
                 if (user) {
-                    // sendEmail(user.email, verificationCode, "Email verification");
+                    let subject = "For Registration Verification code"
+                    let random = verificationCode
+                    sendEmail(user.name,user.email,subject,random)
                     return res.status(200).send({
                         status: 1,
                         message: 'User registered successfully',
                         data: {
                             _id: user._id,
+                            verification_code : user.verification_code,
+
                         }
                     });
                 } else {
@@ -316,13 +320,16 @@ const resendCode = async (req, res) => {
             });
         }
         else {
-            // const verificationCode = Math.floor(100000 + Math.random() * 900000);
-            const verificationCode = 123456
+             const verificationCode = Math.floor(100000 + Math.random() * 900000);
+            // const verificationCode = 123456
             const findUser = await User.findOne({ _id: req.body.user_id });
             if (findUser) {
                 const updateUser = await User.findOneAndUpdate({ _id: req.body.user_id }, { verification_code: verificationCode }, { new: true })
                 if (updateUser) {
-                    sendEmail(updateUser.email, verificationCode, "Verification Code Resend");
+                    let subject = "Verification Code Resend"
+                    let random = verificationCode
+                    sendEmail(updateUser.name,updateUser.email,subject,random)
+                    // sendEmail(updateUser.email, verificationCode, "Verification Code Resend");
                     return res.status(200).send({
                         status: 1,
                         message: "We have resend OTP verification code at your email address",
@@ -369,16 +376,19 @@ const forgotPassword = async (req, res) => {
         else {
             const findUser = await User.findOne({ email: req.body.email });
             if (findUser) {
-                // const verificationCode = Math.floor(100000 + Math.random() * 900000);
-                const verificationCode = 123456
+                const verificationCode = Math.floor(100000 + Math.random() * 900000);
+                // const verificationCode = 123456
                 const updateUser = await User.findOneAndUpdate({ _id: findUser._id }, { user_is_forgot: 1, verification_code: verificationCode }, { new: true })
                 if (updateUser) {
-                    sendEmail(findUser.email, verificationCode, "Forgot Password");
+                    let subject = "Forgot Password"
+                    let random = verificationCode
+                    sendEmail(findUser.name,findUser.email,subject,random)
                     return res.status(200).send({
                         status: 1,
                         message: "OTP verification code has been sent to your email address",
                         data: {
                             _id: updateUser._id,
+                            verification_code : verificationCode,
                             is_verified: updateUser.is_verified,
                             user_is_forgot: updateUser.user_is_forgot
                         },
@@ -749,10 +759,10 @@ const completeProfile = async (req, res) => {
                 message: 'Name field is required.'
             });
         }        
-        else if (!req.body.dob) {
+        else if (!req.body.description) {
             res.status(400).send({
                 status: 0,
-                message: 'Date of birth field is required.'
+                message: 'Decription field is required.'
             });
         }       
         else if (!req.body.phone_number) {
@@ -769,9 +779,9 @@ const completeProfile = async (req, res) => {
                         { _id: req.body.id },
                         {
                             name: req.body.name,
-                            user_image: req.file ? req.file.path : req.body.user_image,
+                            user_image: req.file ? req.file.path.replace(/\\/g, "/") : req.body.user_image,
                             phone_number: req.body.phone_number,
-                            dob: moment(new Date(req.body.dob)).format("YYYY-MM-DD"),
+                            description: req.body.description,
                             user_is_profile_complete: 1,
                         },
                         { new: true }

@@ -39,7 +39,7 @@ router.post("/change-password", verifyToken, changePassword);
 router.post("/socialLogin", socialLogin);
 router.post('/complete-profile', upload.single('user_image'), completeProfile);
 router.post("/logout", verifyToken, logOut);
-router.get("/profile-details/:id", verifyToken, userProfile);
+router.get("/profile-details", verifyToken, userProfile);
 router.get("/delete-profile/:id", verifyToken, deleteUserProfile);
 router.post('/update-profile', upload.single('user_image'), verifyToken, updateProfile);
 
