@@ -85,7 +85,7 @@ router.post("/deleteCategory/:id" ,verifyToken ,DeleteCategory )
 router.post("/createLogs" , upload.single('recording')  , verifyToken , create_meeting_schedule );
 router.get("/getallLogs" , verifyToken , get_all_logs );
 router.get("/getLogs/:id" , verifyToken , getSpecficLogs );
-router.put("/updateLogs/:id" , verifyToken , UpdateLogs );
+router.put("/updateLogs/:id" , upload.single('recording') , verifyToken , UpdateLogs );
 router.delete("/deleteLogs/:id" , verifyToken , DeleteLogs );
 
 
