@@ -32,10 +32,75 @@ const create_meeting_schedule = async (req,res,next) => {
   }
 };
 
-const get_all_logs = async (req,res,next) => {
+const get_all_logs = async (req, res, next) => {
   try {
-  } catch (err) {}
+    let pipeline = [];
+
+    if (req.query.date) {
+      const desiredDate = moment(req.query.date).format("YYYY-MM-DD");
+
+      pipeline.push({
+        $match: {
+          $expr: {
+            $and: [
+              {
+                $eq: [
+                  { $year: { $dateFromString: { dateString: "$date" } } },
+                  parseInt(moment(desiredDate).format("YYYY"))
+                ]
+              },
+              {
+                $eq: [
+                  { $month: { $dateFromString: { dateString: "$date" } } },
+                  parseInt(moment(desiredDate).format("M"))
+                ]
+              },
+              {
+                $eq: [
+                  { $dayOfMonth: { $dateFromString: { dateString: "$date" } } },
+                  parseInt(moment(desiredDate).format("D"))
+                ]
+              }
+            ]
+          }
+        }
+      });
+    }
+
+    if (req.query.title) {
+      pipeline.push({
+        $match: {
+          $expr: {
+            $regexMatch: {
+              input: "$title",
+              regex: req.query.title,
+              options: "i"
+            }
+          }
+        }
+      });
+    }
+
+    pipeline.push({
+      $sort: {
+        createdAt: -1
+      }
+    });
+
+    const alldata = await Logs.aggregate(pipeline);
+
+    res.status(200).send({
+      total: alldata.length,
+      message: "Your data fetched successfully",
+      data: alldata
+    });
+  } catch (err) {
+    res.status(500).send({
+      message: "An error occurred while fetching data"
+    });
+  }
 };
+
 
 const getSpecficLogs = async (req,res,next) => {
   const logsid = req.params.id;
