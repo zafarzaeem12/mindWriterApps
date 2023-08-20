@@ -48,9 +48,13 @@ const logsSchema = new mongoose.Schema(
     recording: {
       type: String,
     },
+    Created_User: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+  },
     status:{
       type : Boolean,
-      default : false
+      default : true
     }
   },
   { timestamps: true }

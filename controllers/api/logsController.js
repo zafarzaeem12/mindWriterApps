@@ -1,10 +1,13 @@
 const Logs = require('../../models/Logs');
+const cron = require('node-cron');
+const Notification = require('../../models/AppNotification')
 const moment = require('moment');
 
 const create_meeting_schedule = async (req,res,next) => {
   try {
     let Data = {
         category_id : req.body.category_id,
+        Created_User : req.user.id,
         title : req.body.title,
         description : req.body.description,
         start_time : moment(req.body.start_time).format("YYYY-MM-DDThh:mm A"),
@@ -16,6 +19,7 @@ const create_meeting_schedule = async (req,res,next) => {
         end_remainder_time: JSON.parse(req.body.set_remainder) === true ?  moment(req.body.end_remainder_time).format("YYYY-MM-DDThh:mm A") : null,
         recording : req.file ? req.file.path.replace(/\\/g, "/") : req.body.recording,
     } 
+
     
     const create_meeting = await Logs.create(Data);
     return res
@@ -170,6 +174,44 @@ const DeleteLogs = async (req,res,next) => {
     res.status(500).send({ message : "Logs Not Deleted"})
   }
 };
+
+const Task_Tracking_Logs = async (req,res,next) => {
+try{
+  const lookedUp = await Logs.find();
+
+lookedUp.filter((data) => {
+  const currentDate = moment();
+  const Datee = moment(data.date);
+
+  const daysDiff = currentDate.diff(Datee, 'days');
+
+  if (daysDiff === 0) {
+    console.log('====== Daily =======' , Datee.format('YYYY-MM-DD'));
+  }
+  else if (daysDiff <= 7 && daysDiff >= -7) {
+    console.log('====== Weekly =======' , Datee.format('YYYY-MM-DD'));
+  }
+  else if (currentDate.month() < Datee.month() || currentDate.month() >= Datee.month() ) {
+    console.log('====== Monthly ======', Datee.format('YYYY-MM-DD'));
+  }
+ 
+ 
+});
+
+}catch(err){
+  console.log(err)
+}
+}
+
+
+const task = cron.schedule("* * * * *",( async() => {
+  await Task_Tracking_Logs()
+  
+   console.log("Task_Tracking_Logs()" ) 
+ }) ,  {
+   scheduled: false, // This will prevent the immediate execution of the task
+ });
+ task.start();
 
 module.exports = {
   create_meeting_schedule,
