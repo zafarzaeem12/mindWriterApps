@@ -174,9 +174,26 @@ const deleteUserProfile = async (req, res) => {
   }
 };
 
+//** is_Notification **//
+
+const isNotify = async (req,res,next) => {
+  const user = req.user.id
+  try{
+    await User.updateOne(
+      {_id : user},
+      {$set :{ is_notification : req.body.is_notification }},
+      {new : true}
+    )
+    res.status(200).send({ message : "Notification updated"})
+  }catch(err){
+    res.status(404).send({ message : "Notification not updated"})
+  }
+}
+
 
 module.exports = {
   userProfile,
   updateProfile,
   deleteUserProfile,
+  isNotify
 }

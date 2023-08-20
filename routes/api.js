@@ -18,6 +18,7 @@ const {
     updateProfile,
     userProfile,
     deleteUserProfile,
+    isNotify
 } = require("../controllers/api/userController");
 const {
     create_Category,
@@ -58,7 +59,7 @@ router.post("/logout", verifyToken, logOut);
 router.get("/profile-details", verifyToken, userProfile);
 router.get("/delete-profile/:id", verifyToken, deleteUserProfile);
 router.post('/update-profile', upload.single('user_image'), verifyToken, updateProfile);
-
+router.put('/is_notify', verifyToken, isNotify )
 
 
 /** Content */
