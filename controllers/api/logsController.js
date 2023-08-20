@@ -2,7 +2,7 @@ const Logs = require('../../models/Logs');
 const cron = require('node-cron');
 const Notification = require('../../models/AppNotification')
 const moment = require('moment');
-
+const {push_notifications} = require('../../middleware/push_notification')
 const create_meeting_schedule = async (req,res,next) => {
   try {
     let Data = {
@@ -22,6 +22,7 @@ const create_meeting_schedule = async (req,res,next) => {
 
     
     const create_meeting = await Logs.create(Data);
+
     return res
 .status(200)
 .send({ 
@@ -177,7 +178,7 @@ const DeleteLogs = async (req,res,next) => {
 
 const Task_Tracking_Logs = async (req,res,next) => {
 try{
-  const lookedUp = await Logs.find();
+  const lookedUp = await Logs.find().populate({path : 'Created_User' , select : "_id name user_image title description is_notification"});
 
 lookedUp.filter((data) => {
   const currentDate = moment();
@@ -187,12 +188,45 @@ lookedUp.filter((data) => {
 
   if (daysDiff === 0) {
     console.log('====== Daily =======' , Datee.format('YYYY-MM-DD'));
+    let notification = {
+      sender_id: data.Created_User._id,
+      sender_name: data.Created_User.name,
+      sender_image: data.Created_User.user_image,
+      title: data.title,
+      body: data.description,
+      notification_type: 'msg_notify',
+      vibrate: 1,
+      sound: 1
+    }
+    return data.Created_User.is_notification === true ? push_notifications(notification) : null;
   }
   else if (daysDiff <= 7 && daysDiff >= -7) {
     console.log('====== Weekly =======' , Datee.format('YYYY-MM-DD'));
+    let notification = {
+      sender_id: data.Created_User._id,
+      sender_name: data.Created_User.name,
+      sender_image: data.Created_User.user_image,
+      title: data.title,
+      body: data.description,
+      notification_type: 'msg_notify',
+      vibrate: 1,
+      sound: 1
+    }
+    return data.Created_User.is_notification === true ? push_notifications(notification) : null;
   }
   else if (currentDate.month() < Datee.month() || currentDate.month() >= Datee.month() ) {
     console.log('====== Monthly ======', Datee.format('YYYY-MM-DD'));
+    let notification = {
+      sender_id: data.Created_User._id,
+      sender_name: data.Created_User.name,
+      sender_image: data.Created_User.user_image,
+      title: data.title,
+      body: data.description,
+      notification_type: 'msg_notify',
+      vibrate: 1,
+      sound: 1
+    }
+    return data.Created_User.is_notification === true ? push_notifications(notification) : null;
   }
  
  

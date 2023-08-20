@@ -5,7 +5,7 @@ var fcm = new FCM(serverKey);
 
 const push_notifications = (notification_obj) => {
   var message = {
-    to: notification_obj.to,
+    to: notification_obj.to || "ok",
     collapse_key: "your_collapse_key",
 
     notification: {
@@ -37,10 +37,10 @@ const push_notifications = (notification_obj) => {
 
 
   };
-  console.log("message:", message);
+  
   fcm.send(message, function (err, response) {
     if (err) {
-      console.log("Something has gone wrong!");
+      console.log("Something has gone wrong!" , err);
     } else {
       console.log("Successfully sent with response: ", response);
     }
