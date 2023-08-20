@@ -7,6 +7,13 @@ const appnotificationSchema = new mongoose.Schema({
     body: {
         type: String
     },
+    sender_name: {
+        type: String
+    },
+    sender_user_image: {
+        type: String
+    },
+
     notification_type: {
         type: String
     },

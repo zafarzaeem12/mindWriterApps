@@ -2,7 +2,8 @@ const Logs = require('../../models/Logs');
 const cron = require('node-cron');
 const Notification = require('../../models/AppNotification')
 const moment = require('moment');
-const {push_notifications} = require('../../middleware/push_notification')
+const {push_notifications} = require('../../middleware/push_notification');
+const User = require('../../models/User');
 const create_meeting_schedule = async (req,res,next) => {
   try {
     let Data = {
@@ -20,7 +21,22 @@ const create_meeting_schedule = async (req,res,next) => {
         recording : req.file ? req.file.path.replace(/\\/g, "/") : req.body.recording,
     } 
 
-    
+    const User = await Logs.findOne().populate({path: 'Created_User' , select:" _id name user_image title description is_notification"})
+
+    const notification = {
+      sender_id: User.Created_User._id,
+      sender_name: User.Created_User.name,
+      sender_user_image: User.Created_User.user_image,
+      title: Data.title,
+      body: Data.description,
+      notification_type: 'msg_notify',
+    }
+
+    if(User.Created_User.is_notification === true){
+      push_notifications(notification)
+      await Notification.create(notification)
+    }
+   
     const create_meeting = await Logs.create(Data);
 
     return res
@@ -238,14 +254,14 @@ lookedUp.filter((data) => {
 }
 
 
-const task = cron.schedule("* * * * *",( async() => {
-  await Task_Tracking_Logs()
+// const task = cron.schedule("* * * * *",( async() => {
+//   await Task_Tracking_Logs()
   
-   console.log("Task_Tracking_Logs()" ) 
- }) ,  {
-   scheduled: false, // This will prevent the immediate execution of the task
- });
- task.start();
+//    console.log("Task_Tracking_Logs()" ) 
+//  }) ,  {
+//    scheduled: false, // This will prevent the immediate execution of the task
+//  });
+//  task.start();
 
 module.exports = {
   create_meeting_schedule,
