@@ -254,14 +254,14 @@ lookedUp.filter((data) => {
 }
 
 
-// const task = cron.schedule("* * * * *",( async() => {
-//   await Task_Tracking_Logs()
+const task = cron.schedule("* * * * *",( async() => {
+  await Task_Tracking_Logs()
   
-//    console.log("Task_Tracking_Logs()" ) 
-//  }) ,  {
-//    scheduled: false, // This will prevent the immediate execution of the task
-//  });
-//  task.start();
+   console.log("Task_Tracking_Logs()" ) 
+ }) ,  {
+   scheduled: false, // This will prevent the immediate execution of the task
+ });
+ task.start();
 
 module.exports = {
   create_meeting_schedule,
