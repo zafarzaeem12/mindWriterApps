@@ -190,10 +190,31 @@ const isNotify = async (req,res,next) => {
   }
 }
 
+const allUsers = async (req,res,next) => {
+  try{
+      const getALLusers = await User.find().select("-password")
+      if(getALLusers.length > 0) {
+          return res
+          .status(200)
+          .send({
+               message : "Fetched All Users",
+               total : getALLusers.length,
+               data : getALLusers
+          })
+      }else{
+          return res.status(404).send({ message : "in else part no user"})
+      }
+  }catch(err){
+      res.status(500).send({
+          message : "No User founds"
+      })
+  }
+}
 
 module.exports = {
   userProfile,
   updateProfile,
   deleteUserProfile,
-  isNotify
+  isNotify,
+  allUsers
 }

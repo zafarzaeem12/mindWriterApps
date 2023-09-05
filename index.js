@@ -14,7 +14,7 @@ const bodyParser = require('body-parser');
 app.use(express.static(path.join(__dirname + '/uploads')));
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json());
+app.use(express.json());
 
 app.use('/uploads', express.static('uploads'));
 
@@ -46,9 +46,11 @@ mongoose.connect(
 );
 
 const apiRoutes = require('./routes/api');
+const adminRoutes = require('./routes/admin');
 
 
 app.use('/api', apiRoutes);
+app.use('/admin', adminRoutes);
 
 /** Content seeder */
 const contentSeeder = [

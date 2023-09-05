@@ -14,7 +14,7 @@ const create_meeting_schedule = async (req,res,next) => {
         start_time : moment(req.body.start_time).format("YYYY-MM-DDThh:mm A"),
         end_time :  moment(req.body.end_time).format("YYYY-MM-DDThh:mm A"),
         date :  moment(req.body.date).format("YYYY-MM-DD"),
-        location : req.body.location,
+        location: req.body.location,
         set_remainder : JSON.parse(req.body.set_remainder),
         start_remainder_time: JSON.parse(req.body.set_remainder) === true ? moment(req.body.start_remainder_time).format("YYYY-MM-DDThh:mm A") : null,
         end_remainder_time: JSON.parse(req.body.set_remainder) === true ?  moment(req.body.end_remainder_time).format("YYYY-MM-DDThh:mm A") : null,
@@ -254,14 +254,14 @@ lookedUp.filter((data) => {
 }
 
 
-const task = cron.schedule("* * * * *",( async() => {
-  await Task_Tracking_Logs()
+// const task = cron.schedule("* * * * *",( async() => {
+//   await Task_Tracking_Logs()
   
-   console.log("Task_Tracking_Logs()" ) 
- }) ,  {
-   scheduled: false, // This will prevent the immediate execution of the task
- });
- task.start();
+//    console.log("Task_Tracking_Logs()" ) 
+//  }) ,  {
+//    scheduled: false, // This will prevent the immediate execution of the task
+//  });
+//  task.start();
 
 module.exports = {
   create_meeting_schedule,

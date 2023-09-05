@@ -38,6 +38,12 @@ const userSchema = new mongoose.Schema(
       // trim: true,
       default : null,
     },
+    role: {
+      type: String,
+      require: true,
+      // trim: true,
+      default : null,
+    },
     verification_code: {
       type: Number,
       default: null,

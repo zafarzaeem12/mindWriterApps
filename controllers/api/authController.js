@@ -5,6 +5,116 @@ const moment = require("moment/moment");
 const sendEmail  = require("../../config/mailer");
 // const stripe = require('stripe')(process.env.STRIPE_KEY);
 
+/** Admin Login */
+const adminlogin = async (req, res) => {
+    try {
+        const emailValidation = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+        if (!req.body.email) {
+            return res.status(400).send({
+                status: 0,
+                message: "Email field is required.",
+            });
+        } else if (!req.body.password) {
+            return res.status(400).send({
+                status: 0,
+                message: "Password field is required.",
+            });
+        } else if (!req.body.email.match(emailValidation)) {
+            return res.status(400).send({
+                status: 0,
+                message: "Invalid email address"
+            })
+        }
+        else {
+
+            const findUserDetails = await User.findOne({ email: req.body.email });
+            if (findUserDetails) {
+
+                const isMatch = await bcrypt.compare(req.body.password, findUserDetails?.password)
+                if (!isMatch) {
+                    return res.status(400).send({ status: 0, message: "Password is incorrect" });
+                }
+
+                if (findUserDetails?.is_verified === 0) {
+                    return res.status(200).send({
+                        status: 1,
+                        message: "Verify your profile",
+                        data: {
+                            name: findUserDetails?.name,
+                            _id: findUserDetails?._id,
+                            user_image: findUserDetails?.user_image,
+                            phone_number: findUserDetails?.phone_number,
+                            description: findUserDetails?.description,
+                            user_authentication: findUserDetails?.user_authentication,
+                            is_verified: findUserDetails?.is_verified,
+                            email: findUserDetails?.email,
+                            user_is_profile_complete: findUserDetails?.user_is_profile_complete,
+                            is_notification: findUserDetails?.is_notification,
+                            user_is_forgot: findUserDetails?.user_is_forgot,
+                            createdAt: findUserDetails?.createdAt,
+                            updatedAt: findUserDetails?.updatedAt,
+                            __v: findUserDetails?.__v
+                        }
+                    });
+                }
+                else if (findUserDetails.is_blocked == 1) {
+                    return res.status(400).send({
+                        status: 0,
+                        message: "You are temporarily blocked by Admin",
+                    });
+                }
+                else if (findUserDetails.is_profile_deleted == 1) {
+                    return res.status(400).send({
+                        status: 0,
+                        message: "Account has been deleted",
+                    });
+                } else {
+                    await findUserDetails.generateAuthToken();
+                    
+
+                    return res.status(200).send({
+                        status: 1,
+                        message: "Login successfully",
+                        data: findUserDetails
+                    })
+                }
+            }
+            else {
+                return res.status(400).send({
+                    status: 0,
+                    message: "User Not Found"
+                })
+
+            }
+
+        }
+    } catch (error) {
+        console.log(error.message)
+        return res.status(500).send({
+            status: 0,
+            message: error.message,
+        });
+    }
+};
+
+/** Admin Blocked User */
+const Blocked_By_Admin = async (req, res, next) => {
+    try {
+        const checkAdmin = await User.findOne( { $and : [{_id : req.user.id} , { role : "Admin"}] });
+        if(checkAdmin) {
+           const response = await User.updateOne(
+                { _id: req.params.id },
+                { $set: { is_blocked: req.query.is_blocked } }, 
+                { new: true }
+            );
+            res.status(200).send({ message: "Operation Successful" });
+            return response
+        }
+    } catch (err) {
+        res.status(404).send({ message: "Operation failed" });
+    }
+};
+
 /** Login user */
 const login = async (req, res) => {
     try {
@@ -96,6 +206,7 @@ const login = async (req, res) => {
                         data: {
                             name: updateUser.name,
                             _id: updateUser._id,
+                            role : updateUser.role,
                             user_image: updateUser.user_image,
                             phone_number: updateUser.phone_number,
                             description: updateUser?.description,
@@ -107,11 +218,10 @@ const login = async (req, res) => {
                             user_is_forgot: updateUser.user_is_forgot,
                             user_social_type: updateUser.user_social_type,
                             user_social_token: updateUser.user_social_token,
-                            user_device_type: updateUser.user_device_type,
-                            user_device_token: updateUser.user_device_token,
                             createdAt: updateUser.createdAt,
                             updatedAt: updateUser.updatedAt,
                             __v: updateUser.__v
+                            
                         }
                     })
                 }
@@ -173,8 +283,8 @@ const register = async (req, res) => {
         }
         else {
 
-            const verificationCode = Math.floor(Math.random() * 900000) + 100000;
-            //const verificationCode = 123456
+            //const verificationCode = Math.floor(Math.random() * 900000) + 100000;
+            const verificationCode = 123456
             
 
             const findEmail = await User.find({ email: req.body.email });
@@ -189,12 +299,13 @@ const register = async (req, res) => {
                     user_device_type: req.body.user_device_type,
                     user_device_token: req.body.user_device_token,
                     verification_code: verificationCode,
+                    role : req.body.role
                 });
                 await user.save();
                 if (user) {
                     let subject = "For Registration Verification code"
                     let random = verificationCode
-                    sendEmail(user.name,user.email,subject,random)
+                    // sendEmail(user.name,user.email,subject,random)
                     return res.status(200).send({
                         status: 1,
                         message: 'User registered successfully',
@@ -321,15 +432,15 @@ const resendCode = async (req, res) => {
             });
         }
         else {
-            const verificationCode = Math.floor(Math.random() * 900000) + 100000;
-            // const verificationCode = 123456
+           // const verificationCode = Math.floor(Math.random() * 900000) + 100000;
+             const verificationCode = 123456
             const findUser = await User.findOne({ _id: req.body.user_id });
             if (findUser) {
                 const updateUser = await User.findOneAndUpdate({ _id: req.body.user_id }, { verification_code: verificationCode }, { new: true })
                 if (updateUser) {
                     let subject = "Verification Code Resend"
                     let random = verificationCode
-                    sendEmail(updateUser.name,updateUser.email,subject,random)
+                    // sendEmail(updateUser.name,updateUser.email,subject,random)
                     // sendEmail(updateUser.email, verificationCode, "Verification Code Resend");
                     return res.status(200).send({
                         status: 1,
@@ -372,13 +483,13 @@ const forgotPassword = async (req, res) => {
         else {
             const findUser = await User.findOne({ email: req.body.email });
             if (findUser) {
-                const verificationCode = Math.floor(Math.random() * 900000) + 100000;
-                // const verificationCode = 123456
+              //  const verificationCode = Math.floor(Math.random() * 900000) + 100000;
+                 const verificationCode = 123456
                 const updateUser = await User.findOneAndUpdate({ _id: findUser._id }, { user_is_forgot: 1, verification_code: verificationCode }, { new: true })
                 if (updateUser) {
                     let subject = "Forgot Password"
                     let random = verificationCode
-                    sendEmail(findUser.name,findUser.email,subject,random)
+                   // sendEmail(findUser.name,findUser.email,subject,random)
                     return res.status(200).send({
                         status: 1,
                         message: "OTP verification code has been sent to your email address",
@@ -835,4 +946,6 @@ module.exports = {
     socialLogin,
     completeProfile,
     logOut,
+    adminlogin,
+    Blocked_By_Admin
 };

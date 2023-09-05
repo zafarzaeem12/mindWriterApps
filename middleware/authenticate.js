@@ -1,39 +1,49 @@
 const jwt = require('jsonwebtoken');
 const createError = require('http-errors');
 const User = require('../models/User');
-const { decode } = require('jsonwebtoken');
 
 const verifyToken = async (req, res, next) => {
-
-if(!req.headers['authorization']) {
+  if (!req.headers['authorization']) {
     return res.status(401).send({ status: 0, message: 'Unauthorized' });
-}
+  }
 
-try {
+  try {
     // Get token from header
-    token = req.headers['authorization'].split(' ')[1]
+    const token = req.headers['authorization'].split(' ')[1];
 
-    //verify token
-    const decoded = jwt.verify(token, process.env.JWT_KEY)
-
-    // console.log('token ** ', decoded);
-
-    //Get user from the token
-    req.userId= decoded.userId
-    req.user = await User.findById(decoded.userId).select('-password')
-  if(!req.user){
-        return res.status(401).send({ status: 0, message: 'Unauthorized' });
+    if (!token) {
+      return res.status(401).send({ status: 0, message: 'Token missing' });
     }
-    else if(req.user.user_authentication != token){
-        return res.status(401).send({ status: 0, message: 'Unauthorized' });
-    }
-    else{
-        next()
+
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_KEY);
+
+    // Get user from the token
+    const userId = decoded.userId;
+    console.log("req.userId", userId);
+
+    // Check if the user exists
+    const user = await User.findOne({ _id: userId }).select('-password');
+
+    if (!user) {
+      return res.status(401).send({ status: 0, message: 'User not found' });
+    } else if (user.user_authentication !== token) {
+      return res.status(401).send({ status: 0, message: 'Token mismatch' });
+    } else {
+      // User is authenticated, you can store user data in the request object if needed
+      req.user = user;
+      next();
     }
   } catch (error) {
-    console.log(error)
-    return res.status(401).send({ status: 0, message: 'Unauthorized' });
-}
+    console.error(error.message);
+
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).send({ status: 0, message: 'Invalid token' });
+    }
+
+    // Handle other errors
+    return res.status(500).send({ status: 0, message: 'Internal Server Error' });
+  }
 };
 
-module.exports = {verifyToken};
+module.exports = { verifyToken };

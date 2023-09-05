@@ -59,7 +59,7 @@ const UpdateCategory = async (req,res,next) => {
     const updateCategory =  await Category.findByIdAndUpdate(
       {_id : cat_id },
       { $set : {
-        name : req.body.name
+        name : req.body.name,
       }},
       {new : true}
     )
