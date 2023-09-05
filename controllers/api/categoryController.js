@@ -29,7 +29,7 @@ const getCategory = async (req,res,next) => {
     res
     .status(200)
     .send({ 
-      total : `${getall.length}`,
+      total : getall.length,
       message : `Categories Fetched`,
       data : getall
     
