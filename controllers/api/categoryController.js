@@ -24,7 +24,7 @@ const create_Category = async (req, res, next) => {
 
 const getCategory = async (req,res,next) => { 
   try{
-    const getall = await Category.find({ status : false});
+    const getall = await Category.find();
 
     res
     .status(200)
