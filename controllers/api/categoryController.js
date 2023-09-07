@@ -86,20 +86,9 @@ const DeleteCategory = async (req,res,next) => {
   const id = req.params.id
   try{ 
 
-    // const check_category = await Category.find({$and : [{ status : status }, {_id : id}] });
- 
-    // if(check_category.length > 0){
-    //   return res.status(404).send({ message : "no category found"})
-    // } 
-
-
-   const softdelete =  await Category.updateOne(
-      {_id : id},
-      { $set : { status : req.body.status } },
-      {new : true}
-    )
+    await Category.deleteOne({ _id : id})
     
-    res.status(200).send({ message : 'Category Soft Deleted Successfully'})
+    res.status(200).send({ message : 'Category Deleted Successfully'})
   }catch(err){
     res.status(404).send({ message : 'Category not deleted'})
   }
