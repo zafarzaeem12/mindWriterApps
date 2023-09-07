@@ -28,7 +28,8 @@ const {
     getCategory,
     SpecficCategory,
     UpdateCategory,
-    DeleteCategory
+    DeleteCategory,
+    BlockandunBlockCategory
 } = require("../controllers/api/categoryController")
 const {
     create_meeting_schedule,
@@ -86,6 +87,7 @@ router.post("/createCategory" ,verifyToken ,create_Category )
 router.get("/getallcategory" ,verifyToken , getCategory )
 router.get("/get/:id" ,verifyToken ,SpecficCategory )
 router.put("/updateCategory/:id" ,verifyToken ,UpdateCategory )
+router.put("/statuschangedCategory/:id" , verifyToken , BlockandunBlockCategory )
 router.delete("/deleteCategory/:id" ,verifyToken ,DeleteCategory )
 
 /** Logs  */

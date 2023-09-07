@@ -22,82 +22,93 @@ const create_Category = async (req, res, next) => {
   }
 };
 
-const getCategory = async (req,res,next) => { 
-  try{
+const getCategory = async (req, res, next) => {
+  try {
     const getall = await Category.find();
 
-    res
-    .status(200)
-    .send({ 
-      total : getall.length,
-      message : `Categories Fetched`,
-      data : getall
-    
-    })
-  }catch(err){
-    res.status(404).send({ message : "no category found"})
+    res.status(200).send({
+      total: getall.length,
+      message: `Categories Fetched`,
+      data: getall,
+    });
+  } catch (err) {
+    res.status(404).send({ message: "no category found" });
   }
-}
+};
 
-const SpecficCategory = async (req,res,next) => {
-  try{
-    const getData = await Category.findOne({ _id : req.params.id});
-    res
-    .status(200)
-    .send({ 
-      message : "Data Fetched Successfully" , 
-      data : getData
-    })
-  }catch(err){
-    res.status(404).send({ message : "no category found"})
+const SpecficCategory = async (req, res, next) => {
+  try {
+    const getData = await Category.findOne({ _id: req.params.id });
+    res.status(200).send({
+      message: "Data Fetched Successfully",
+      data: getData,
+    });
+  } catch (err) {
+    res.status(404).send({ message: "no category found" });
   }
- }
+};
 
-const UpdateCategory = async (req,res,next) => { 
-  const cat_id = req.params.id
-  try{
-    const updateCategory =  await Category.findByIdAndUpdate(
-      {_id : cat_id },
-      { $set : {
-        name : req.body.name,
-      }},
-      {new : true}
-    )
+const UpdateCategory = async (req, res, next) => {
+  const cat_id = req.params.id;
+  try {
+    const updateCategory = await Category.findByIdAndUpdate(
+      { _id: cat_id },
+      {
+        $set: {
+          name: req.body.name,
+        },
+      },
+      { new: true }
+    );
 
-    res
-    .status(200)
-    .send({ 
+    res.status(200).send({
       status: 1,
-      message : "Category Updated successfully" , 
-      data : updateCategory
-    })
-
-  }catch(err){
-    res
-    .status(500)
-    .send({ 
+      message: "Category Updated successfully",
+      data: updateCategory,
+    });
+  } catch (err) {
+    res.status(500).send({
       status: 0,
-      message : "Category Not Updated"
-    })
+      message: "Category Not Updated",
+    });
   }
-}
+};
 
-const DeleteCategory = async (req,res,next) => {
-  const id = req.params.id
-  try{ 
+const DeleteCategory = async (req, res, next) => {
+  const id = req.params.id;
+  try {
+    await Category.deleteOne({ _id: id });
 
-    await Category.deleteOne({ _id : id})
-    
-    res.status(200).send({ message : 'Category Deleted Successfully'})
-  }catch(err){
-    res.status(404).send({ message : 'Category not deleted'})
+    res.status(200).send({ message: "Category Deleted Successfully" });
+  } catch (err) {
+    res.status(404).send({ message: "Category not deleted" });
   }
- }
+};
+
+const BlockandunBlockCategory = async (req, res, next) => {
+  try {
+    const statusChanged = await Category.updateOne(
+      { _id: req.params.id },
+      { $set: { status: req.body.status } },
+      { new: true }
+    );
+
+    const { acknowledged, modifiedCount } = statusChanged;
+    if (acknowledged === true && modifiedCount === 1) {
+      return res.status(200).send({
+        message: "Status Changed Successfully",
+      });
+    }
+  } catch (err) {
+    return res.status(500).send({ message: "Status Not Changed" });
+  }
+};
 
 module.exports = {
   create_Category,
   getCategory,
   SpecficCategory,
   UpdateCategory,
-  DeleteCategory
+  DeleteCategory,
+  BlockandunBlockCategory,
 };

@@ -76,11 +76,11 @@ router.get('/app-notification', verifyToken, getInAppNotification);
 
 
 /** Category  */
-router.post("/createCategory" ,verifyToken ,create_Category )
+// router.post("/createCategory" ,verifyToken ,create_Category )
 router.get("/getallcategory" ,verifyToken , getCategory )
-router.get("/get/:id" ,verifyToken ,SpecficCategory )
-router.put("/updateCategory/:id" ,verifyToken ,UpdateCategory )
-router.post("/deleteCategory/:id" ,verifyToken ,DeleteCategory )
+// router.get("/get/:id" ,verifyToken ,SpecficCategory )
+// router.put("/updateCategory/:id" ,verifyToken ,UpdateCategory )
+// router.post("/deleteCategory/:id" ,verifyToken ,DeleteCategory )
 
 /** Logs  */
 router.post("/createLogs" , upload.single('recording')  , verifyToken , create_meeting_schedule );
