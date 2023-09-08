@@ -55,7 +55,12 @@ const logsSchema = new mongoose.Schema(
     status:{
       type : Boolean,
       default : true
-    }
+    },
+    types: {
+      type: String,
+      enum: ['Daily', 'Weekly' , 'Monthly'],
+      default: 'Daily'
+  },
   },
   { timestamps: true }
 );

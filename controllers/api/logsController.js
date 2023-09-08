@@ -102,6 +102,21 @@ const get_all_logs = async (req, res, next) => {
       });
     }
 
+    
+    if (req.query.types) {
+      pipeline.push({
+        $match: {
+          $expr: {
+            $regexMatch: {
+              input: "$types",
+              regex: req.query.types,
+              options: "i"
+            }
+          }
+        }
+      });
+    }
+
     pipeline.push({
       $sort: {
         createdAt: -1
@@ -196,7 +211,7 @@ const Task_Tracking_Logs = async (req,res,next) => {
 try{
   const lookedUp = await Logs.find().populate({path : 'Created_User' , select : "_id name user_image title description is_notification"});
 
-lookedUp.filter((data) => {
+lookedUp.filter(async(data) => {
   const currentDate = moment();
   const Datee = moment(data.date);
 
@@ -214,6 +229,7 @@ lookedUp.filter((data) => {
       vibrate: 1,
       sound: 1
     }
+    await Logs.updateOne ({ _id : data._id } , {$set : { types : "Daily"} } , { new : true  })
     return data.Created_User.is_notification === true ? push_notifications(notification) : null;
   }
   else if (daysDiff <= 7 && daysDiff >= -7) {
@@ -228,6 +244,7 @@ lookedUp.filter((data) => {
       vibrate: 1,
       sound: 1
     }
+    await Logs.updateOne ({ _id : data._id } , {$set : { types : "Weekly"} } , { new : true  })
     return data.Created_User.is_notification === true ? push_notifications(notification) : null;
   }
   else if (currentDate.month() < Datee.month() || currentDate.month() >= Datee.month() ) {
@@ -242,6 +259,7 @@ lookedUp.filter((data) => {
       vibrate: 1,
       sound: 1
     }
+    await Logs.updateOne ({ _id : data._id } , {$set : { types : "Monthly"} } , { new : true  })
     return data.Created_User.is_notification === true ? push_notifications(notification) : null;
   }
  
