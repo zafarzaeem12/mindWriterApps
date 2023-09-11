@@ -4,6 +4,7 @@ const Notification = require('../../models/AppNotification')
 const moment = require('moment');
 const {push_notifications} = require('../../middleware/push_notification');
 const User = require('../../models/User');
+const mongoose = require("mongoose");
 const create_meeting_schedule = async (req,res,next) => {
   try {
     let Data = {
@@ -54,6 +55,7 @@ const create_meeting_schedule = async (req,res,next) => {
 };
 
 const get_all_logs = async (req, res, next) => {
+  const Id = new mongoose.Types.ObjectId(req.user.id);
   try {
     let pipeline = [];
 
@@ -118,6 +120,9 @@ const get_all_logs = async (req, res, next) => {
     }
 
     pipeline.push({
+      $match: {
+        Created_User: Id
+      },
       $sort: {
         createdAt: -1
       }
@@ -272,14 +277,14 @@ lookedUp.filter(async(data) => {
 }
 
 
-// const task = cron.schedule("* * * * *",( async() => {
-//   await Task_Tracking_Logs()
+const task = cron.schedule("* * * * *",( async() => {
+  await Task_Tracking_Logs()
   
-//    console.log("Task_Tracking_Logs()" ) 
-//  }) ,  {
-//    scheduled: false, // This will prevent the immediate execution of the task
-//  });
-//  task.start();
+   console.log("Task_Tracking_Logs()" ) 
+ }) ,  {
+   scheduled: false, // This will prevent the immediate execution of the task
+ });
+ task.start();
 
 module.exports = {
   create_meeting_schedule,
