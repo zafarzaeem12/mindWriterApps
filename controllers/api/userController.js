@@ -181,7 +181,7 @@ const isNotify = async (req,res,next) => {
   try{
     await User.updateOne(
       {_id : user},
-      {$set :{ is_notification : req.body.is_notification }},
+      {$set :{ is_notification : req.query.is_notification }},
       {new : true}
     )
     res.status(200).send({ message : "Notification updated"})
