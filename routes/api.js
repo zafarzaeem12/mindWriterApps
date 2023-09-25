@@ -32,7 +32,8 @@ const {
     get_all_logs,
     getSpecficLogs,
     UpdateLogs,
-    DeleteLogs
+    DeleteLogs,
+    GetPieChartRecord
 } = require("../controllers/api/logsController")
 const { getContent } = require("../controllers/api/commonController");
 
@@ -84,6 +85,7 @@ router.get("/getallcategory" ,verifyToken , getCategory )
 
 /** Logs  */
 router.post("/createLogs" , upload.single('recording')  , verifyToken , create_meeting_schedule );
+router.get("/getpiechart" , verifyToken , GetPieChartRecord)
 router.get("/getallLogs" , verifyToken , get_all_logs );
 router.get("/getLogs/:id" , verifyToken , getSpecficLogs );
 router.put("/updateLogs/:id" , upload.single('recording') , verifyToken , UpdateLogs );
